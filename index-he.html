@@ -3,43 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>שעון בחינה</title>
+    <title>שעון בחינה - הגדרות</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
     <div id="app">
         <div class="main-wrapper">
-            <!-- Setup Page -->
-            <div v-if="!isSetup" class="setup-container">
-            <!-- Language Selection -->
-            <div class="language-selector">
-
-                <div class="lang-buttons">
-                    <button class="lang-btn active">עבר</button>
-                    <button class="lang-btn" onclick="window.location.href='index.html'">ENG</button>
+            <div class="setup-container">
+                <div class="language-selector">
+                    <div class="lang-buttons">
+                        <button class="lang-btn active">עבר</button>
+                        <button class="lang-btn" onclick="window.location.href='index.html'">ENG</button>
+                    </div>
+                    <span class="globe-icon">🌐</span>
                 </div>
-                <span class="globe-icon">🌐</span>
-            </div>
 
                 <h1>הגדרות בחינה</h1>
 
                 <div class="input-card">
                     <div class="input-group">
                         <label>התחלה</label>
-                        <input type="text" ref="startInput" v-model="startTime">
+                        <input type="text" ref="startInput" v-model="startTime" dir="ltr">
                     </div>
 
                     <div class="input-group">
                         <label>סיום</label>
-                        <input type="text" ref="endInput" v-model="endTime">
+                        <input type="text" ref="endInput" v-model="endTime" dir="ltr">
                     </div>
 
                     <div class="input-group">
                         <label>תוספת זמן</label>
-                        <input type="text" ref="extraInput" v-model="extraTime">
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button class="helper-btn" @click="calculate25Percent" type="button">25%</button>
+                            <input type="text" ref="extraInput" v-model="extraTime" style="flex: 1;" dir="ltr">
+                        </div>
                     </div>
 
                     <div class="input-group">
@@ -59,31 +59,6 @@
                     <button class="start-btn" @click="startExam">התחל שעון בחינה</button>
                 </div>
             </div>
-
-            <!-- Display Page -->
-            <div v-else class="display-container">
-                <div class="center-content rtl-reverse">
-                    <div class="clock-panel">
-                        <div class="clock-display">{{ roundedTime }}</div>
-                        <div class="clock-caption">עוגל ל-{{ increment }} דקות</div>
-                    </div>
-
-                    <div class="exam-info">
-                        <div class="info-item">
-                            <span class="label">התחלה</span>
-                            <span class="value">{{ startTime }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">סיום</span>
-                            <span class="value">{{ endTime }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">תוספת זמן</span>
-                            <span class="value">{{ extraTime }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -93,14 +68,12 @@
         createApp({
             data() {
                 return {
-                    isSetup: false,
                     startTime: '08:30',
                     endTime: '10:30',
                     extraTime: '11:00',
                     increment: 5,
                     increments: [1, 2, 5, 10, 12, 15],
-                    roundedTime: '--:--',
-                    intervalId: null
+                    extraPicker: null
                 }
             },
             methods: {
@@ -121,7 +94,7 @@
                             ...config,
                             defaultDate: this.endTime
                         });
-                        flatpickr(this.$refs.extraInput, {
+                        this.extraPicker = flatpickr(this.$refs.extraInput, {
                             ...config,
                             defaultDate: this.extraTime
                         });
@@ -130,34 +103,37 @@
                 selectIncrement(value) {
                     this.increment = value;
                 },
-                startExam() {
-                    this.isSetup = true;
-                    this.updateRoundedTime();
-                    this.syncClock();
-                },
-                updateRoundedTime() {
-                    const now = new Date();
-                    const hours = String(now.getHours()).padStart(2, '0');
-                    const minutes = now.getMinutes();
-                    const roundedMinutes = String(
-                        Math.floor(minutes / this.increment) * this.increment
-                    ).padStart(2, '0');
-                    this.roundedTime = `${hours}:${roundedMinutes}`;
-                },
-                syncClock() {
-                    const now = new Date();
-                    const currentMinutes = now.getMinutes();
-                    const minutesUntilNext = this.increment -
-                        (currentMinutes % this.increment);
-                    const msUntilNext = minutesUntilNext * 60000 -
-                        (now.getSeconds() * 1000) - now.getMilliseconds();
+                calculate25Percent() {
+                    const [startHour, startMin] = this.startTime.split(':').map(Number);
+                    const [endHour, endMin] = this.endTime.split(':').map(Number);
 
-                    setTimeout(() => {
-                        this.updateRoundedTime();
-                        this.intervalId = setInterval(() => {
-                            this.updateRoundedTime();
-                        }, this.increment * 60000);
-                    }, msUntilNext);
+                    const startMinutes = startHour * 60 + startMin;
+                    const endMinutes = endHour * 60 + endMin;
+                    const duration = endMinutes - startMinutes;
+
+                    const extraDuration = Math.floor(duration * 0.25);
+                    const extraEndMinutes = endMinutes + extraDuration;
+
+                    const roundedMinutes = Math.ceil(extraEndMinutes / 5) * 5;
+
+                    const finalHour = Math.floor(roundedMinutes / 60) % 24;
+                    const finalMin = roundedMinutes % 60;
+
+                    const newExtraTime = `${String(finalHour).padStart(2, '0')}:${String(finalMin).padStart(2, '0')}`;
+
+                    this.extraTime = newExtraTime;
+                    if (this.extraPicker) {
+                        this.extraPicker.setDate(newExtraTime);
+                    }
+                },
+                startExam() {
+                    const params = new URLSearchParams({
+                        start: this.startTime,
+                        end: this.endTime,
+                        extra: this.extraTime,
+                        increment: this.increment
+                    });
+                    window.location.href = `display-he.html?${params.toString()}`;
                 }
             },
             mounted() {

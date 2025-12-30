@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Clock</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="main-wrapper">
+            <div class="display-container">
+                <div class="center-content">
+                    <div class="exam-info">
+                        <div class="info-item">
+                            <span class="label">Start</span>
+                            <span class="value">{{ startTime }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">End</span>
+                            <span class="value">{{ endTime }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Extra</span>
+                            <span class="value">{{ extraTime }}</span>
+                        </div>
+                    </div>
+
+                    <div class="clock-panel">
+                        <div class="clock-display">{{ roundedTime }}</div>
+                        <div class="clock-caption">Rounded to {{ increment }}min</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    startTime: '--:--',
+                    endTime: '--:--',
+                    extraTime: '--:--',
+                    increment: 5,
+                    roundedTime: '--:--',
+                    intervalId: null
+                }
+            },
+            methods: {
+                readParams() {
+                    const params = new URLSearchParams(window.location.search);
+                    this.startTime = params.get('start') || '08:30';
+                    this.endTime = params.get('end') || '10:30';
+                    this.extraTime = params.get('extra') || '11:00';
+                    this.increment = parseInt(params.get('increment')) || 5;
+                },
+                updateRoundedTime() {
+                    const now = new Date();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = now.getMinutes();
+                    const roundedMinutes = String(
+                        Math.floor(minutes / this.increment) * this.increment
+                    ).padStart(2, '0');
+                    this.roundedTime = `${hours}:${roundedMinutes}`;
+                },
+                syncClock() {
+                    const now = new Date();
+                    const currentMinutes = now.getMinutes();
+                    const minutesUntilNext = this.increment -
+                        (currentMinutes % this.increment);
+                    const msUntilNext = minutesUntilNext * 60000 -
+                        (now.getSeconds() * 1000) - now.getMilliseconds();
+
+                    setTimeout(() => {
+                        this.updateRoundedTime();
+                        this.intervalId = setInterval(() => {
+                            this.updateRoundedTime();
+                        }, this.increment * 60000);
+                    }, msUntilNext);
+                }
+            },
+            mounted() {
+                this.readParams();
+                this.updateRoundedTime();
+                this.syncClock();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

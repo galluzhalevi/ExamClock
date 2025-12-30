@@ -271,3 +271,22 @@ body {
         letter-spacing: -2px;
     }
 }
+
+
+.helper-btn {
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    background: #f8f9fa;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.helper-btn:hover {
+    background: #000000;
+    color: #ffffff;
+}
