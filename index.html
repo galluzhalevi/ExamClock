@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Clock</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="main-wrapper">
+            <!-- Setup Page -->
+            <div v-if="!isSetup" class="setup-container">
+            <!-- Language Selection -->
+            <div class="language-selector">
+                <span class="globe-icon">🌐</span>
+                <div class="lang-buttons">
+                    <button class="lang-btn active">ENG</button>
+                    <button class="lang-btn" onclick="window.location.href='index-he.html'">עבר</button>
+                </div>
+            </div>
+
+                <h1>Exam Setup</h1>
+
+                <div class="input-card">
+                    <div class="input-group">
+                        <label>Start Time</label>
+                        <input type="text" ref="startInput" v-model="startTime">
+                    </div>
+
+                    <div class="input-group">
+                        <label>End Time</label>
+                        <input type="text" ref="endInput" v-model="endTime">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Extra Time</label>
+                        <input type="text" ref="extraInput" v-model="extraTime">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Clock Increment (minutes)</label>
+                        <div class="increment-buttons">
+                            <button
+                                v-for="inc in increments"
+                                :key="inc"
+                                @click="selectIncrement(inc)"
+                                :class="['increment-btn', { active: increment === inc }]"
+                                type="button">
+                                {{ inc }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="start-btn" @click="startExam">Start Exam Clock</button>
+                </div>
+            </div>
+
+            <!-- Display Page -->
+            <div v-else class="display-container">
+                <div class="center-content">
+                    <div class="exam-info">
+                        <div class="info-item">
+                            <span class="label">Start</span>
+                            <span class="value">{{ startTime }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">End</span>
+                            <span class="value">{{ endTime }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Extra</span>
+                            <span class="value">{{ extraTime }}</span>
+                        </div>
+                    </div>
+
+                    <div class="clock-panel">
+                        <div class="clock-display">{{ roundedTime }}</div>
+                        <div class="clock-caption">Rounded to {{ increment }}min</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    isSetup: false,
+                    startTime: '08:30',
+                    endTime: '10:30',
+                    extraTime: '11:00',
+                    increment: 5,
+                    increments: [1, 2, 5, 10, 12, 15],
+                    roundedTime: '--:--',
+                    intervalId: null
+                }
+            },
+            methods: {
+                initTimePickers() {
+                    this.$nextTick(() => {
+                        const config = {
+                            enableTime: true,
+                            noCalendar: true,
+                            dateFormat: "H:i",
+                            time_24hr: true,
+                            allowInput: true,
+                        };
+                        flatpickr(this.$refs.startInput, {
+                            ...config,
+                            defaultDate: this.startTime
+                        });
+                        flatpickr(this.$refs.endInput, {
+                            ...config,
+                            defaultDate: this.endTime
+                        });
+                        flatpickr(this.$refs.extraInput, {
+                            ...config,
+                            defaultDate: this.extraTime
+                        });
+                    });
+                },
+                selectIncrement(value) {
+                    this.increment = value;
+                },
+                startExam() {
+                    this.isSetup = true;
+                    this.updateRoundedTime();
+                    this.syncClock();
+                },
+                updateRoundedTime() {
+                    const now = new Date();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = now.getMinutes();
+                    const roundedMinutes = String(
+                        Math.floor(minutes / this.increment) * this.increment
+                    ).padStart(2, '0');
+                    this.roundedTime = `${hours}:${roundedMinutes}`;
+                },
+                syncClock() {
+                    const now = new Date();
+                    const currentMinutes = now.getMinutes();
+                    const minutesUntilNext = this.increment -
+                        (currentMinutes % this.increment);
+                    const msUntilNext = minutesUntilNext * 60000 -
+                        (now.getSeconds() * 1000) - now.getMilliseconds();
+
+                    setTimeout(() => {
+                        this.updateRoundedTime();
+                        this.intervalId = setInterval(() => {
+                            this.updateRoundedTime();
+                        }, this.increment * 60000);
+                    }, msUntilNext);
+                }
+            },
+            mounted() {
+                this.initTimePickers();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
