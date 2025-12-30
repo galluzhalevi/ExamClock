@@ -39,13 +39,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-/* Always keep it top-right, even in RTL */
-[dir="rtl"] .language-selector {
-    right: 10px;
-    left: auto;
-    flex-direction: row; /* Force LTR layout */
+    direction: ltr; /* Force LTR for consistent visual order [Globe] [ENG] [AR] [HE] */
 }
 
 .globe-icon {
@@ -57,11 +51,6 @@ body {
 .lang-buttons {
     display: flex;
     gap: 5px;
-}
-
-/* Keep buttons in LTR order even in RTL */
-[dir="rtl"] .lang-buttons {
-    flex-direction: row;
 }
 
 .lang-btn {
