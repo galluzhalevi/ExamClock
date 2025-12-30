@@ -37,8 +37,14 @@
                     <div class="input-group">
                         <label>תוספת זמן</label>
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <button class="helper-btn" @click="calculate25Percent" type="button">25%</button>
-                            <input type="text" ref="extraInput" v-model="extraTime" style="flex: 1;" dir="ltr">
+                            <button
+                                :class="['action-btn', { active: is25PercentActive }]"
+                                @click="calculate25Percent"
+                                type="button"
+                                style="width: auto; padding: 12px 20px;">
+                                25%
+                            </button>
+                            <input type="text" ref="extraInput" v-model="extraTime" @input="onExtraTimeManualEdit" style="flex: 1;" dir="ltr">
                         </div>
                     </div>
 
@@ -49,7 +55,7 @@
                                 v-for="inc in increments"
                                 :key="inc"
                                 @click="selectIncrement(inc)"
-                                :class="['increment-btn', { active: increment === inc }]"
+                                :class="['action-btn', { active: increment === inc }]"
                                 type="button">
                                 {{ inc }}
                             </button>
@@ -73,7 +79,8 @@
                     extraTime: '11:00',
                     increment: 5,
                     increments: [1, 2, 5, 10, 12, 15],
-                    extraPicker: null
+                    extraPicker: null,
+                    is25PercentActive: false
                 }
             },
             methods: {
@@ -96,12 +103,18 @@
                         });
                         this.extraPicker = flatpickr(this.$refs.extraInput, {
                             ...config,
-                            defaultDate: this.extraTime
+                            defaultDate: this.extraTime,
+                            onChange: () => {
+                                this.is25PercentActive = false;
+                            }
                         });
                     });
                 },
                 selectIncrement(value) {
                     this.increment = value;
+                },
+                onExtraTimeManualEdit() {
+                    this.is25PercentActive = false;
                 },
                 calculate25Percent() {
                     const [startHour, startMin] = this.startTime.split(':').map(Number);
@@ -122,6 +135,7 @@
                     const newExtraTime = `${String(finalHour).padStart(2, '0')}:${String(finalMin).padStart(2, '0')}`;
 
                     this.extraTime = newExtraTime;
+                    this.is25PercentActive = true;
                     if (this.extraPicker) {
                         this.extraPicker.setDate(newExtraTime);
                     }
