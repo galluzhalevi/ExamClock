@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Clock - Setup</title>
+    <title>ساعة الامتحان - الإعدادات</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -32,31 +32,30 @@
         <div class="main-wrapper">
             <div class="setup-container">
                 <div class="language-selector">
-                    <span class="globe-icon">🌐</span>
                     <div class="lang-buttons">
-                        <button class="lang-btn active">ENG</button>
-                        <button class="lang-btn" onclick="window.location.href='index-ar.html'">عرب</button>
+                        <button class="lang-btn" onclick="window.location.href='index.html'">ENG</button>
+                        <button class="lang-btn active">عرب</button>
                         <button class="lang-btn" onclick="window.location.href='index-he.html'">עבר</button>
                     </div>
+                    <span class="globe-icon">🌐</span>
                 </div>
 
-                <h1>Exam Setup</h1>
+                <h1>إعدادات الامتحان</h1>
 
                 <div class="input-card">
                     <div class="input-group">
-                        <label>Start Time</label>
-                        <input type="text" ref="startInput" v-model="startTime" @input="resetCalculation">
+                        <label>وقت البدء</label>
+                        <input type="text" ref="startInput" v-model="startTime" @input="resetCalculation" dir="ltr">
                     </div>
 
                     <div class="input-group">
-                        <label>End Time</label>
-                        <input type="text" ref="endInput" v-model="endTime" @input="resetCalculation">
+                        <label>وقت الانتهاء</label>
+                        <input type="text" ref="endInput" v-model="endTime" @input="resetCalculation" dir="ltr">
                     </div>
 
                     <div class="input-group">
-                        <label>Extra Time</label>
+                        <label>وقت إضافي</label>
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="text" ref="extraInput" v-model="extraTime" @input="resetCalculation" style="flex: 1;" :disabled="!extraTimeEnabled">
                             <button
                                 :class="['action-btn', { active: is25PercentActive }]"
                                 @click="calculate25Percent"
@@ -65,18 +64,19 @@
                                 :disabled="!extraTimeEnabled">
                                 25%
                             </button>
+                            <input type="text" ref="extraInput" v-model="extraTime" @input="resetCalculation" style="flex: 1;" dir="ltr" :disabled="!extraTimeEnabled">
                         </div>
                         <button
                             :class="['action-btn', 'no-extra-btn', { active: !extraTimeEnabled }]"
                             @click="extraTimeEnabled = !extraTimeEnabled"
                             type="button"
                             style="width: 100%; margin-top: 10px;">
-                            No Extra Time
+                            بدون وقت إضافي
                         </button>
                     </div>
 
                     <div class="input-group">
-                        <label>Clock Increment (minutes)</label>
+                        <label>فاصل التحديث (بالدقائق)</label>
                         <div class="increment-buttons">
                             <button
                                 v-for="inc in increments"
@@ -89,7 +89,7 @@
                         </div>
                     </div>
 
-                    <button class="start-btn" @click="startExam">Start Exam Clock</button>
+                    <button class="start-btn" @click="startExam">ابدأ ساعة الامتحان</button>
                 </div>
             </div>
         </div>
@@ -184,7 +184,7 @@
                         increment: this.increment,
                         showExtra: this.extraTimeEnabled
                     });
-                    window.location.href = `display.html?${params.toString()}`;
+                    window.location.href = `display-ar.html?${params.toString()}`;
                 }
             },
             mounted() {
