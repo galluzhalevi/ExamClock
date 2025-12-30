@@ -8,6 +8,24 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #ccc;
+            color: #ccc;
+        }
+        input:disabled {
+            background-color: #f0f0f0 !important;
+            cursor: not-allowed;
+            color: #999;
+            border-color: #ddd !important;
+        }
+        .no-extra-btn {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -41,11 +59,19 @@
                                 :class="['action-btn', { active: is25PercentActive }]"
                                 @click="calculate25Percent"
                                 type="button"
-                                style="width: auto; padding: 12px 20px;">
+                                style="width: auto; padding: 12px 20px;"
+                                :disabled="!extraTimeEnabled">
                                 25%
                             </button>
-                            <input type="text" ref="extraInput" v-model="extraTime" @input="resetCalculation" style="flex: 1;" dir="ltr">
+                            <input type="text" ref="extraInput" v-model="extraTime" @input="resetCalculation" style="flex: 1;" dir="ltr" :disabled="!extraTimeEnabled">
                         </div>
+                        <button
+                            :class="['action-btn', 'no-extra-btn', { active: !extraTimeEnabled }]"
+                            @click="extraTimeEnabled = !extraTimeEnabled"
+                            type="button"
+                            style="width: 100%; margin-top: 10px;">
+                            ללא תוספת זמן
+                        </button>
                     </div>
 
                     <div class="input-group">
@@ -77,6 +103,7 @@
                     startTime: '09:00',
                     endTime: '12:00',
                     extraTime: '13:00',
+                    extraTimeEnabled: true,
                     increment: 5,
                     increments: [1, 2, 5, 10, 12, 15],
                     extraPicker: null,
@@ -153,7 +180,8 @@
                         start: this.startTime,
                         end: this.endTime,
                         extra: this.extraTime,
-                        increment: this.increment
+                        increment: this.increment,
+                        showExtra: this.extraTimeEnabled
                     });
                     window.location.href = `display-he.html?${params.toString()}`;
                 }

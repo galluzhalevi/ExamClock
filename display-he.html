@@ -26,7 +26,7 @@
                             <span class="label">סיום</span>
                             <span class="value">{{ endTime }}</span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" v-if="showExtra">
                             <span class="label">תוספת זמן</span>
                             <span class="value">{{ extraTime }}</span>
                         </div>
@@ -45,6 +45,7 @@
                     startTime: '--:--',
                     endTime: '--:--',
                     extraTime: '--:--',
+                    showExtra: true,
                     increment: 5,
                     roundedTime: '--:--',
                     intervalId: null
@@ -57,6 +58,7 @@
                     this.endTime = params.get('end') || '10:30';
                     this.extraTime = params.get('extra') || '11:00';
                     this.increment = parseInt(params.get('increment')) || 5;
+                    this.showExtra = params.get('showExtra') !== 'false';
                 },
                 updateRoundedTime() {
                     const now = new Date();
