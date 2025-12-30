@@ -125,7 +125,7 @@ body {
     text-align: center;
 }
 
-/* Increment Buttons */
+/* Increment Buttons Container */
 .increment-buttons {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -137,7 +137,7 @@ body {
     direction: ltr;
 }
 
-/* Action Buttons - shared style for increment and helper buttons */
+/* Action Buttons - used for increment and 25% buttons */
 .action-btn {
     padding: 12px;
     font-size: 1.1rem;
