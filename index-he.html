@@ -26,12 +26,12 @@
                 <div class="input-card">
                     <div class="input-group">
                         <label>התחלה</label>
-                        <input type="text" ref="startInput" v-model="startTime" dir="ltr">
+                        <input type="text" ref="startInput" v-model="startTime" @input="resetCalculation" dir="ltr">
                     </div>
 
                     <div class="input-group">
                         <label>סיום</label>
-                        <input type="text" ref="endInput" v-model="endTime" dir="ltr">
+                        <input type="text" ref="endInput" v-model="endTime" @input="resetCalculation" dir="ltr">
                     </div>
 
                     <div class="input-group">
@@ -44,7 +44,7 @@
                                 style="width: auto; padding: 12px 20px;">
                                 25%
                             </button>
-                            <input type="text" ref="extraInput" v-model="extraTime" @input="onExtraTimeManualEdit" style="flex: 1;" dir="ltr">
+                            <input type="text" ref="extraInput" v-model="extraTime" @input="resetCalculation" style="flex: 1;" dir="ltr">
                         </div>
                     </div>
 
@@ -74,12 +74,14 @@
         createApp({
             data() {
                 return {
-                    startTime: '08:30',
-                    endTime: '10:30',
-                    extraTime: '11:00',
+                    startTime: '09:00',
+                    endTime: '12:00',
+                    extraTime: '13:00',
                     increment: 5,
                     increments: [1, 2, 5, 10, 12, 15],
                     extraPicker: null,
+                    startPicker: null,
+                    endPicker: null,
                     is25PercentActive: false
                 }
             },
@@ -93,13 +95,19 @@
                             time_24hr: true,
                             allowInput: true,
                         };
-                        flatpickr(this.$refs.startInput, {
+                        this.startPicker = flatpickr(this.$refs.startInput, {
                             ...config,
-                            defaultDate: this.startTime
+                            defaultDate: this.startTime,
+                            onChange: () => {
+                                this.is25PercentActive = false;
+                            }
                         });
-                        flatpickr(this.$refs.endInput, {
+                        this.endPicker = flatpickr(this.$refs.endInput, {
                             ...config,
-                            defaultDate: this.endTime
+                            defaultDate: this.endTime,
+                            onChange: () => {
+                                this.is25PercentActive = false;
+                            }
                         });
                         this.extraPicker = flatpickr(this.$refs.extraInput, {
                             ...config,
@@ -113,7 +121,7 @@
                 selectIncrement(value) {
                     this.increment = value;
                 },
-                onExtraTimeManualEdit() {
+                resetCalculation() {
                     this.is25PercentActive = false;
                 },
                 calculate25Percent() {
